@@ -5,6 +5,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtOpenGL import *
 from Body import *
+from random import *
 
 angle = 0
 
@@ -26,7 +27,7 @@ class OpenGlWidget(QGLWidget):
 
         glTranslatef(0, 0, -3.0)
         glRotatef(90, 1, 0, 0)
-        glColor3f( .5, 1, 0.0 )
+        glColor3f( random(), random(), random() )
         glPolygonMode(GL_FRONT, GL_FILL)
 
         for b in gBodies:

@@ -214,7 +214,6 @@ class CustomSlider(QSlider):
 ```
 
 ## 2.3 OptionsWidget
-<p align="center"><img src="https://github.com/luislve17/Bodies-Sim/blob/master/readme_imgs/OptionsWidget.png"/></p>
 
 ```python
 from PyQt4.QtGui import *
