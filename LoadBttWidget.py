@@ -1,5 +1,6 @@
 from PyQt4.QtGui import *
 from Body import *
+from random import *
 
 class LoadBttWidget(QWidget):
 	def __init__(self, bindings_arr):
@@ -44,7 +45,7 @@ class LoadBttWidget(QWidget):
 		# Aqui ya se puede utilizar los vectores
 		self.newBody = Body(self.id_content, float(self.mass_content[0]),
 					float(self.pos_content[0]), float(self.pos_content[1]),float(self.pos_content[2]),
-					float(self.vel_content[0]), float(self.vel_content[1]), float(self.vel_content[2]))
+					float(self.vel_content[0]), float(self.vel_content[1]), float(self.vel_content[2]), (random(), random(), random()))
 		
 		gBodies.append(self.newBody)
 

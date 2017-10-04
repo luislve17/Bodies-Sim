@@ -27,10 +27,11 @@ class OpenGlWidget(QGLWidget):
 
         glTranslatef(0, 0, -3.0)
         glRotatef(90, 1, 0, 0)
-        glColor3f( random(), random(), random() )
+        
         glPolygonMode(GL_FRONT, GL_FILL)
 
         for b in gBodies:
+            glColor3f(b.color[0], b.color[1], b.color[2])
             self.drawBody(b.r_x, b.r_y, b.r_z)
 
         glFlush()
