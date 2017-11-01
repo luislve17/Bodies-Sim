@@ -544,7 +544,7 @@ if __name__ == "__main__":
 ## Fecha de entrega: 2-3 de Noviembre
 
 ___
-A. Parámetros
+## A. Parámetros
 
 
 ```python
@@ -566,7 +566,7 @@ self.masa_module = ValuesWidget("masa:", 1, ("10^6 kg"))
 <p align="center"><img src="https://github.com/luislve17/Bodies-Sim/blob/master/readme_imgs/gui_screen_1.png"/></p>
 
 ___
-B. Control de animación
+## B. Control de animación
 
 ```python
 # OptionsWidget.py
@@ -620,7 +620,7 @@ def recalcBody(contenier, principal_body, interacting_bodies):
 	return contenier
 ```
 ___
-C. Navegación
+## C. Navegación
 
 ```python
 # OpenGlWidget.py
@@ -726,7 +726,7 @@ def read_keys():
 		angle_y += 2
 ```
 ___
-D. Sistema de importación/exportación
+## D. Sistema de importación/exportación
 ```python
 # n_bodies.py - l. 31
 
