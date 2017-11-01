@@ -12,9 +12,9 @@ class ToolsWidget(QWidget):
 	def __init__(self):
 		super().__init__()
 		self.id_input = IdWidget()
-		self.masa_module = ValuesWidget("m:", 1, ("masa"))
-		self.pos_module = ValuesWidget("r:", 3, ("x", "y", "z"))
-		self.vel_module = ValuesWidget("v:", 3, ("x", "y", "z"))
+		self.masa_module = ValuesWidget("masa:", 1, ("10^6 kg"))
+		self.pos_module = ValuesWidget("r (km):", 3, ("x", "y", "z"))
+		self.vel_module = ValuesWidget("v (km/s):", 3, ("x", "y", "z"))
 		self.visual_options = OptionsWidget(("Trial", "Texture", "Animate"))
 		self.bodies_combo = BodiesComboWidget()
 

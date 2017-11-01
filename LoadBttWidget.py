@@ -6,7 +6,6 @@ class LoadBttWidget(QWidget):
 	def __init__(self, bindings_arr):
 		super().__init__()
 		self.widgets_arr = bindings_arr # Arreglo de comunicacion con widgets
-		#self.bodies_arr = global_bodies # Arreglo de comunicacion con cuerpos
 
 		self.load_btt = QPushButton("LOAD")
 		self.load_btt.setMaximumSize(70, 40)
@@ -18,6 +17,7 @@ class LoadBttWidget(QWidget):
 		self.setLayout(self.button_layout)
 	
 	def btnstate(self):
+		global gBodies
 		self.id_content = self.widgets_arr[0].getContent() # id textbox
 		self.mass_content = self.widgets_arr[1].getContent() # masa textbox
 		self.pos_content = self.widgets_arr[2].getContent() # posicion textbox
@@ -43,14 +43,13 @@ class LoadBttWidget(QWidget):
 				return
 
 		# Aqui ya se puede utilizar los vectores
-		self.newBody = Body(self.id_content, float(self.mass_content[0]),
-					float(self.pos_content[0]), float(self.pos_content[1]),float(self.pos_content[2]),
-					float(self.vel_content[0]), float(self.vel_content[1]), float(self.vel_content[2]), (random(), random(), random()))
+		self.newBody = Body(self.id_content, (10**6)*float(self.mass_content[0]),
+					(10**3)*float(self.pos_content[0]), (10**3)*float(self.pos_content[1]),(10**3)*float(self.pos_content[2]),
+					(0.001)*float(self.vel_content[0]), (0.001)*float(self.vel_content[1]), (0.001)*float(self.vel_content[2]), (random(), random(), random()))
 		
 		gBodies.append(self.newBody)
-
 		self.widgets_arr[4].entities_combo.addItem("{}".format(self.newBody.id)) # Anadiendo un representante del elemento al combo
-		
+
 	def is_number(self, s):
 		try:
 			float(s)

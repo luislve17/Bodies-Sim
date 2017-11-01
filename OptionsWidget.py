@@ -1,4 +1,5 @@
 from PyQt4.QtGui import *
+from OpenGlWidget import *
 
 class OptionsWidget(QWidget):
 
@@ -7,6 +8,7 @@ class OptionsWidget(QWidget):
 		# Constructor
 		super().__init__()
 
+		self.AnimFlag = False
 		# Arreglo de botones radiales
 		self.checkbox_arr = []
 		
@@ -20,4 +22,10 @@ class OptionsWidget(QWidget):
 		for bt in self.checkbox_arr:
 			self.OptionsLayout.addWidget(bt)
 
+		self.checkbox_arr[2].toggled.connect(self.setAnimationFlag)
+		
 		self.setLayout(self.OptionsLayout)
+
+	def setAnimationFlag(self):
+		self.AnimFlag = not self.AnimFlag
+		OpenGlWidget.changeAnimFlag(self.AnimFlag)

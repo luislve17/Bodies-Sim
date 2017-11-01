@@ -538,3 +538,282 @@ def main():
 if __name__ == "__main__":
 	main()
 ```
+
+# DEADLINE 2: Parámetrización de dimensiones, animacion controlada en tiempo real y navegación
+
+## Fecha de entrega: 2-3 de Noviembre
+
+___
+A. Parámetros
+
+
+```python
+# LoadBttWidget.py - l. 20
+self.newBody = Body(self.id_content, (10**6)*float(self.mass_content[0]),
+			(10**3)*float(self.pos_content[0]), (10**3)*float(self.pos_content[1]),(10**3)*float(self.pos_content[2]),
+			(0.001)*float(self.vel_content[0]), (0.001)*float(self.vel_content[1]), (0.001)*float(self.vel_content[2]),
+			(random(), random(), random()))
+```
+
+```python
+# ToolsWidget.py - l.15
+self.masa_module = ValuesWidget("masa:", 1, ("10^6 kg"))
+		self.pos_module = ValuesWidget("r (km):", 3, ("x", "y", "z"))
+		self.vel_module = ValuesWidget("v (km/s):", 3, ("x", "y", "z"))
+
+```
+
+<p align="center"><img src="https://github.com/luislve17/Bodies-Sim/blob/master/readme_imgs/gui_screen_1.png"/></p>
+
+___
+B. Control de animación
+
+```python
+# OptionsWidget.py
+from OpenGlWidget import * # l.2
+...
+self.AnimFlag = False # l.11
+...
+
+self.checkbox_arr[2].toggled.connect(self.setAnimationFlag) # l.25
+
+...
+def setAnimationFlag(self): # l.28
+		self.AnimFlag = not self.AnimFlag
+		OpenGlWidget.changeAnimFlag(self.AnimFlag)
+```
+
+```python
+# OpenGlWidget
+
+def changeAnimFlag(b): # l.36
+		global gAnimFlag
+		gAnimFlag = b
+...
+global gAnimFlag # l.63
+if gAnimFlag:
+	Body.refreshInteraction(gBodies)
+```
+
+```python
+# Body.py - l.32
+def refreshInteraction(bodies_arr):
+	global gBodies
+	new_gBodies = []
+	for b in bodies_arr:
+		temp_body = b
+		temp_body = Body.recalcBody(temp_body, b, bodies_arr)
+		new_gBodies.append(temp_body)
+	gBodies = new_gBodies
+
+def recalcBody(contenier, principal_body, interacting_bodies):
+	dt = 5000
+	G = 6.674e-11 # Constante de gravitacion universal
+	a = np.array([.0,.0,.0]) # Aceleracion a acumular por cada cuerpo interactuando
+	for b in interacting_bodies: # Para cada cuerpo en gBodies
+		if b.id != principal_body.id: # Diferente al manipulado
+			d = b.r - principal_body.r # r_j - r vector distancia entre vectores posicion
+			a += d*((G*b.mass)/(np.linalg.norm(d)**3)) # Ecuacion de gravitacion universal (vectorial)
+	# Actualizar parametros de temp_body
+	contenier.v += a*dt
+	contenier.r += contenier.v*dt
+	return contenier
+```
+___
+C. Navegación
+
+```python
+# OpenGlWidget.py
+
+observador = [0,0,20]
+# Valores de orientacion del observador
+angle_x = 0
+angle_y = 0
+# Vector booleano para las teclas W,A,S,D,UP,DOWN,LEFT,RIGHT
+key_handler = [False, False, False, False, False, False, False, False]
+
+... # l.27
+self.setFocusPolicy(Qt.StrongFocus)
+
+glTranslatef(-observador[0], -observador[1], -observador[2])
+		glRotatef(angle_x, 1,0,0)
+		glRotatef(angle_y, 0,1,0)
+		
+		self.drawAxis()
+...
+def updateGL(self):
+		# Manejar teclas
+		OpenGlWidget.read_keys()
+		self.update()
+
+... # l.122
+def keyPressEvent(self, event):
+		self.on_key(event)
+		event.accept()
+
+def keyReleaseEvent(self, event):
+	self.off_key(event)
+	event.accept()
+
+def wheelEvent(self,event):
+	self.wheel_handler(event)
+	event.accept()
+
+...
+def on_key(self, event):
+	if event.key() == Qt.Key_W:
+		key_handler[0] = True
+	if event.key() == Qt.Key_A:
+		key_handler[1] = True
+	if event.key() == Qt.Key_S:
+		key_handler[2] = True
+	if event.key() == Qt.Key_D:
+		key_handler[3] = True
+		
+	if event.key() == Qt.Key_Up:
+		key_handler[4] = True
+	if event.key() == Qt.Key_Down:
+		key_handler[5] = True
+	if event.key() == Qt.Key_Left:
+		key_handler[6] = True
+	if event.key() == Qt.Key_Right:
+		key_handler[7] = True
+
+def off_key(self, event):
+	if event.key() == Qt.Key_W:
+		key_handler[0] = False
+	if event.key() == Qt.Key_A:
+		key_handler[1] = False
+	if event.key() == Qt.Key_S:
+		key_handler[2] = False
+	if event.key() == Qt.Key_D:
+		key_handler[3] = False
+		
+	if event.key() == Qt.Key_Up:
+		key_handler[4] = False
+	if event.key() == Qt.Key_Down:
+		key_handler[5] = False
+	if event.key() == Qt.Key_Left:
+		key_handler[6] = False
+	if event.key() == Qt.Key_Right:
+		key_handler[7] = False
+
+def wheel_handler(self, event):
+	# Control de profundidad con la rueda del mouse
+	observador[2] = observador[2] - event.delta()/480
+		
+def read_keys():
+	global key_handler
+	global angle_x
+	global angle_y
+	# Traslacion
+	if key_handler[0]: # W
+		observador[1] += .1
+	if key_handler[1]: # A
+		observador[0] -= .1
+	if key_handler[2]: # S
+		observador[1] -= .1
+	if key_handler[3]: # D
+		observador[0] += .1
+	# Rotacion
+	if key_handler[4]: # UP
+		angle_x -= 2
+	if key_handler[5]: # DOWN
+		angle_x += 2
+	if key_handler[6]: # LEFT
+		angle_y -= 2
+	if key_handler[7]: # RIGHT
+		angle_y += 2
+```
+___
+D. Sistema de importación/exportación
+```python
+# n_bodies.py - l. 31
+
+# Adicion de la barra superior
+bar = self.menuBar()
+op_archivo = bar.addMenu("Archivo")
+
+importar = QAction("Importar", self)
+importar.setShortcut("Ctrl + O")
+importar.triggered.connect(self.import_method)
+op_archivo.addAction(importar)
+
+exportar = QAction("Exportar", self)
+exportar.setShortcut("Ctrl + S")
+exportar.triggered.connect(self.export_method)
+op_archivo.addAction(exportar)
+# Fin modificacion
+```
+
+<p align="center"><img src="https://github.com/luislve17/Bodies-Sim/blob/master/readme_imgs/sub_2.png"/></p>
+
+```python
+# n_bodies.py - l. 51
+def import_method(self):
+	import_name = QFileDialog.getOpenFileName(self, 'Importar archivo')
+	if(import_name != ''):
+		FileUtilities.importBodiesFile(import_name,self.tools_module.bodies_combo.entities_combo)
+	
+def export_method(self):
+	export_name = QFileDialog.getSaveFileName(self, 'Exportar archivo')
+	if(export_name != ''):
+		FileUtilities.exportBodiesFile(export_name)
+```
+
+```python
+# FileUtilities.py
+
+from Body import *
+from PyQt4.QtGui import *
+
+class FileUtilities:
+    def exportBodiesFile(name):
+        global gBodies
+        export_file = open(name, 'w')
+        # Limpiando el file
+        export_file.seek(0)
+        export_file.truncate()
+
+        # Exportando todos los cuerpos presente en gBodies
+        for b in gBodies:
+            line_string = "{}|{}|{}|{}|{}|{}|{}|{}|{}|\n".format(b.id,b.mass, b.r[0], b.r[1], b.r[2], b.v[0], b.v[1], b.v[2], b.color)
+            export_file.write(line_string)
+        export_file.close()
+
+    def importBodiesFile(name, combo):
+        global gBodies
+        buffer = []
+        import_file = open(name, 'r')
+        for line in import_file:
+            current_data = ""
+            data_list = list()
+            for ch in line:
+                # Caracteres de separacion
+                if ch != '|' and ch != ',':
+                    if ch != " " and ch != '(' and ch != ')': # Ignorando los espacios
+                        current_data += str(ch)
+                else:
+                    data_list.append(current_data)
+                    current_data = ""
+            # Acabada de leer una linea, se carga el objeto con sus datos
+
+            temp_body = Body(data_list[0],
+                                float(data_list[1]),
+                                float(data_list[2]),float(data_list[3]),float(data_list[4]),
+                                float(data_list[5]),float(data_list[6]),float(data_list[7]),
+                                (float(data_list[8]),float(data_list[9]),float(data_list[10])))
+
+            buffer.append(temp_body)
+        # Acabado el anexo de los cuerpos, se actualiza el combo
+        gBodies[:] = buffer[:]
+        FileUtilities.refreshBodiesCombo(combo)
+        import_file.close()
+
+    def refreshBodiesCombo(combo):
+        combo.clear()
+        global gBodies
+        for b in gBodies:
+            combo.addItem(b.id)
+
+```
