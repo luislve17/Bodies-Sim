@@ -817,3 +817,120 @@ class FileUtilities:
             combo.addItem(b.id)
 
 ```
+
+# DEADLINE 3: Manipulación de cuerpos, detección de colisiones, control de guías
+
+## Fecha de entrega: 16-17 de Noviembre
+
+## A. Manipulación de cuerpos
+
+```python
+# LoadButtonWidget.py
+for each in gBodies:
+	if each.id == self.id_content:
+		global light_created
+		each.id = self.id_content
+		each.mass = (10**6)*float(self.mass_content[0])
+		each.r_x = (10**3)*float(self.pos_content[0])
+		each.r_y = (10**3)*float(self.pos_content[1])
+		each.r_z = (10**3)*float(self.pos_content[2])
+		each.v_x = (0.001)*float(self.vel_content[0])
+		each.v_y = (0.001)*float(self.vel_content[1])
+		each.v_z = (0.001)*float(self.vel_content[2])
+		each.color = self.color_content
+		if self.light_state == True:
+			if light_created == True:
+				each.light = True
+				light_created = False
+			else:
+				each.light = True
+				light_created = True
+		else:
+			if each.light == True:
+				each.light = False
+				light_created = False
+			else:
+				each.light = False
+
+		each.prepareNumpy()
+		return
+```
+
+## B. Detección de colisiones
+
+```python
+# Body.py
+def applyColissions(body):
+	global gBodies
+	for b in gBodies:
+		if b != body:
+			if np.linalg.norm(body.r - b.r) < 200:
+				if np.sign(body.v[0]) != np.sign(b.v[0]):
+					body.v[0] = -body.v[0]
+					b.v[0] = -b.v[0]
+				if np.sign(body.v[1]) != np.sign(b.v[1]):
+					body.v[1] = -body.v[1]
+					b.v[1] = -b.v[1]
+				if np.sign(body.v[2]) != np.sign(b.v[2]):
+					body.v[2] = -body.v[2]
+					b.v[2] = -b.v[2]
+				break
+```
+
+## C. Control de guías
+
+```python
+# OptionsWidget
+	self.checkbox_arr[0].toggled.connect(self.setVectorFlag)
+	# ToDo texturas
+	self.checkbox_arr[2].toggled.connect(self.setAnimationFlag)
+	self.checkbox_arr[3].toggled.connect(self.setGuidesFlag)
+	
+	self.setLayout(self.OptionsLayout)
+	
+	def setVectorFlag(self):
+		self.VecFlag = not self.VecFlag
+		OpenGlWidget.changeVecFlag(self.VecFlag)
+	
+	def setAnimationFlag(self):
+		self.AnimFlag = not self.AnimFlag
+		OpenGlWidget.changeAnimFlag(self.AnimFlag)
+
+	def setGuidesFlag(self):
+		self.GuidesFlag = not self.GuidesFlag
+		OpenGlWidget.changeGuidesFlag(self.GuidesFlag)
+```
+
+```python
+#OpenGlWidget.py
+global gVectorFlag
+	if gVectorFlag:
+		glLineWidth(2)
+		glBegin(GL_LINES)
+		glVertex3f(0,0,0);
+		glVertex3f(b.v[0]*1000, b.v[1]*1000, b.v[2]*1000);
+		glEnd()
+		glLineWidth(1)
+
+...
+
+global gGuidesFlag
+		if gGuidesFlag:
+			self.drawAxis()
+```
+
+## D. Intento de manipulación de iluminación
+```python
+# OpenGlWidget.py
+qaAmbientLight = (0.2, 0.2, 0.2, 1.0)
+qaDiffuseLight = (0.8, 0.8, 0.8, 1.0)
+qaSpecularLight  = (1.0, 1.0, 1.0, 1.0)
+
+...
+
+glEnable(GL_LIGHTING);
+
+glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight)
+glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight)
+glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight)
+```

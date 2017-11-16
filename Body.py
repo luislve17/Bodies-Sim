@@ -3,7 +3,7 @@ import numpy as np
 gBodies = []
 
 class Body:
-	def __init__(self, id_st, m, r_x, r_y, r_z, v_x, v_y, v_z, color):
+	def __init__(self, id_st, m, r_x, r_y, r_z, v_x, v_y, v_z, color, lum_state):
 		self.id = id_st
 		self.mass = m
 		self.r_x = r_x
@@ -13,6 +13,7 @@ class Body:
 		self.v_y = v_y
 		self.v_z = v_z
 		self.color = color
+		self.light = lum_state
 		self.prepareNumpy()
 	
 	def prepareNumpy(self):
@@ -36,6 +37,7 @@ class Body:
 			temp_body = b
 			temp_body = Body.recalcBody(temp_body, b, bodies_arr)
 			new_gBodies.append(temp_body)
+			Body.applyColissions(temp_body)
 		gBodies = new_gBodies
 
 	def recalcBody(contenier, principal_body, interacting_bodies):
@@ -50,6 +52,22 @@ class Body:
 		contenier.v += a*dt
 		contenier.r += contenier.v*dt
 		return contenier
+
+	def applyColissions(body):
+		global gBodies
+		for b in gBodies:
+			if b != body:
+				if np.linalg.norm(body.r - b.r) < 200:
+					if np.sign(body.v[0]) != np.sign(b.v[0]):
+						body.v[0] = -body.v[0]
+						b.v[0] = -b.v[0]
+					if np.sign(body.v[1]) != np.sign(b.v[1]):
+						body.v[1] = -body.v[1]
+						b.v[1] = -b.v[1]
+					if np.sign(body.v[2]) != np.sign(b.v[2]):
+						body.v[2] = -body.v[2]
+						b.v[2] = -b.v[2]
+					break
 
 def main():
 	b = Body("b1", 13, 1,2,-1,0,3,4, (0.5,0.2,0.45))

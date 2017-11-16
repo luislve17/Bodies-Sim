@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
 		self.mainWidget = QWidget()
 
 		# Inicializacion de widgets
-		self.tools_module = ToolsWidget()		
+		self.tools_module = ToolsWidget()
 		self.opengl_canvas = OpenGlWidget(self.mainWidget)
 		
 		# Definicion de layout principal

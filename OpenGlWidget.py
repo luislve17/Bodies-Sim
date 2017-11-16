@@ -6,11 +6,16 @@ from PyQt4.QtGui import *
 from PyQt4.QtOpenGL import *
 from Body import *
 from random import *
+from TexturesComboWidget import *
 
 # Angulo de animacion para la presentacion
 angle = 0
 # Bandera de control para encender o apagar la animacion
 gAnimFlag = False
+# Bandera de control para mostrar los ejes coordenados
+gGuidesFlag = False
+# Bandera de control para mostrar los vectores presentes
+gVectorFlag = False
 # Vector observador
 observador = [0,0,20]
 # Valores de orientacion del observador
@@ -18,6 +23,16 @@ angle_x = 0
 angle_y = 0
 # Vector booleano para las teclas W,A,S,D,UP,DOWN,LEFT,RIGHT
 key_handler = [False, False, False, False, False, False, False, False]
+
+qaBlack = (0.0, 0.0, 0.0, 1.0); #Black Color
+qaGreen = (0.0, 1.0, 0.0, 1.0); #Green Color
+qaWhite = (1.0, 1.0, 1.0, 1.0); #White Color
+qaRed = (1.0, 0.0, 0.0, 1.0); #White Color
+
+# Set lighting intensity and color
+qaAmbientLight = (0.2, 0.2, 0.2, 1.0);
+qaDiffuseLight = (0.8, 0.8, 0.8, 1.0);
+qaSpecularLight  = (1.0, 1.0, 1.0, 1.0);
 
 class OpenGlWidget(QGLWidget):
 	def __init__(self, parent=None):
@@ -36,7 +51,15 @@ class OpenGlWidget(QGLWidget):
 	def changeAnimFlag(b):
 		global gAnimFlag
 		gAnimFlag = b
-    
+
+	def changeGuidesFlag(b):
+		global gGuidesFlag
+		gGuidesFlag = b
+
+	def changeVecFlag(b):
+		global gVectorFlag
+		gVectorFlag = b
+
 	def paintGL(self):
 		# Funcion de dibujo para el contexto OpenGL
 		global angle # Para el ejemplo
@@ -51,11 +74,13 @@ class OpenGlWidget(QGLWidget):
 		glRotatef(angle_x, 1,0,0)
 		glRotatef(angle_y, 0,1,0)
 		
-		self.drawAxis()
+		global gGuidesFlag
+		if gGuidesFlag:
+			self.drawAxis()
 				
 		for b in gBodies:
 			glColor3f(b.color[0], b.color[1], b.color[2])
-			self.drawBody(b.r)
+			self.drawBody(b)
 
 		glFlush()
 
@@ -72,6 +97,15 @@ class OpenGlWidget(QGLWidget):
 		glDepthFunc(GL_LESS)
 		glEnable(GL_DEPTH_TEST)
 		glShadeModel(GL_SMOOTH)
+		#m
+		glEnable(GL_LIGHTING);
+		#glEnable(GL_LIGHT0);
+
+		# Set lighting intensity and color
+		glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
+		# /m
 
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()                    
@@ -84,14 +118,42 @@ class OpenGlWidget(QGLWidget):
 		OpenGlWidget.read_keys()
 		self.update()
     	
-	def drawBody(self, r): # r: vector posicion
+	def drawBody(self, b): # r: vector posicion
 		glPushMatrix()
-		glTranslatef(r[0]/10**3, r[1]/10**3, r[2]/10**3)
-		glRotatef(angle%360, 1, 0, 1)
-		glutWireSphere(.1, 20, 20)
-		glPopMatrix()
+		glTranslatef(b.r[0]/10**3, b.r[1]/10**3, b.r[2]/10**3)
 		
+		global gVectorFlag
+		if gVectorFlag:
+			glLineWidth(2)
+			glBegin(GL_LINES)
+			glVertex3f(0,0,0);
+			glVertex3f(b.v[0]*1000, b.v[1]*1000, b.v[2]*1000);
+			glEnd()
+			glLineWidth(1)
+		glRotatef(angle%360, 1, 0, 1)
+
+		# Habilitamos iluminacion del material
+		glEnable(GL_COLOR_MATERIAL)
+		# Seteamos el valor de color del ambiente (fuente general y sin tracking)
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (b.color[0], b.color[1], b.color[2]))
+		# Seteamos el valor de color de difusion (fuente unitaria)
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, (b.color[0], b.color[1], b.color[2]))
+		# Seteamos el valor de color especular (fuente de direccion particular y tenue)
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, qaWhite)
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 20)
+		# Posicion de la fuente de iluminacion
+		if b.light:
+			glEnable(GL_LIGHT0);
+			glLightfv(GL_LIGHT0, GL_POSITION, (1.0,0.0,0.0,1.0))
+		glutSolidSphere(.1, 20, 20)
+		if b.light:
+			glDisable(GL_LIGHT0);
+
+			
+		glPopMatrix()
+
 	def drawAxis(self):
+		glLineWidth(5)
 		glPushMatrix()
 		glBegin(GL_LINES)
 	
@@ -118,6 +180,7 @@ class OpenGlWidget(QGLWidget):
 		
 		glEnd()
 		glPopMatrix()
+		glLineWidth(1)
 			
 	def keyPressEvent(self, event):
 		self.on_key(event)
@@ -179,13 +242,13 @@ class OpenGlWidget(QGLWidget):
 		global angle_y
 		# Traslacion
 		if key_handler[0]: # W
-			observador[1] += .1
+			observador[1] += .15
 		if key_handler[1]: # A
-			observador[0] -= .1
+			observador[0] -= .15
 		if key_handler[2]: # S
-			observador[1] -= .1
+			observador[1] -= .15
 		if key_handler[3]: # D
-			observador[0] += .1
+			observador[0] += .15
 		# Rotacion
 		if key_handler[4]: # UP
 			angle_x -= 2
