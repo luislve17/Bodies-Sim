@@ -92,7 +92,7 @@ class OpenGlWidget(QGLWidget):
 
 	def initializeGL(self):
 		# Funcion de inicializacion de parametros
-		glClearColor(0.0, 0.0, 0.0, 1.0) # Limpiar viewport con negro
+		glClearColor(1.0, 1.0, 1.0, 1.0) # Limpiar viewport con negro
 		glClearDepth(1.0) # Fijamos la profundidad del fondo a su maximo
 		glDepthFunc(GL_LESS)
 		glEnable(GL_DEPTH_TEST)
@@ -143,16 +143,17 @@ class OpenGlWidget(QGLWidget):
 		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 20)
 		# Posicion de la fuente de iluminacion
 		if b.light:
-			glEnable(GL_LIGHT0);
+			glEnable(GL_LIGHT0)
 			glLightfv(GL_LIGHT0, GL_POSITION, (1.0,0.0,0.0,1.0))
 		glutSolidSphere(.1, 20, 20)
 		if b.light:
-			glDisable(GL_LIGHT0);
+			glDisable(GL_LIGHT0)
 
 			
 		glPopMatrix()
 
 	def drawAxis(self):
+		glDisable(GL_LIGHTING)
 		glLineWidth(5)
 		glPushMatrix()
 		glBegin(GL_LINES)
@@ -181,6 +182,7 @@ class OpenGlWidget(QGLWidget):
 		glEnd()
 		glPopMatrix()
 		glLineWidth(1)
+		glEnable(GL_LIGHTING)
 			
 	def keyPressEvent(self, event):
 		self.on_key(event)

@@ -52,7 +52,7 @@ class Body:
 		contenier.v += a*dt
 		contenier.r += contenier.v*dt
 		return contenier
-
+	
 	def applyColissions(body):
 		global gBodies
 		for b in gBodies:
@@ -67,6 +67,11 @@ class Body:
 					if np.sign(body.v[2]) != np.sign(b.v[2]):
 						body.v[2] = -body.v[2]
 						b.v[2] = -b.v[2]
+					
+					if np.linalg.norm(body.r - b.r) < 170:
+						print("!")
+						b.r += (b.r-body.r)*.05
+						body.r += (body.r-b.r)*.05
 					break
 
 def main():
