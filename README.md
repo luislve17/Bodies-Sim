@@ -934,3 +934,6 @@ glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight)
 glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight)
 glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight)
 ```
+## Resultado final
+
+<p align="center"><img src="https://github.com/luislve17/Bodies-Sim/blob/master/readme_imgs/bodies-sim.png"/></p>
